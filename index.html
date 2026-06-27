@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Pitta Plan — Housewarming RSVP</title>
+<style>
+  :root {
+    --char: #3a2a1e;
+    --paper: #f3e9d8;
+    --paper-deep: #e9dcc4;
+    --ember: #c4451f;
+    --ember-deep: #9a3315;
+    --olive: #5c6b3c;
+    --olive-deep: #44512c;
+    --char-soft: #6b5847;
+    --line: #d4c4a8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color: var(--char);
+    background: var(--paper-deep);
+    line-height: 1.5;
+    margin: 0;
+    padding: 20px 14px 60px;
+    -webkit-font-smoothing: antialiased;
+  }
+  #app { max-width: 640px; margin: 0 auto; }
+
+  .hw-hero {
+    background:
+      radial-gradient(circle at 80% -10%, rgba(196,69,31,0.18), transparent 55%),
+      var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 32px 28px 28px;
+  }
+  .hw-flame {
+    font-size: 13px; letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--ember); font-weight: 700; margin: 0 0 10px;
+  }
+  .hw-title {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(30px, 7vw, 46px); line-height: 1.02; font-weight: 700;
+    margin: 0 0 4px; letter-spacing: -0.01em;
+  }
+  .hw-title em { font-style: italic; color: var(--ember-deep); }
+  .hw-sub {
+    font-family: Georgia, serif; font-style: italic; font-size: 17px;
+    color: var(--char-soft); margin: 0 0 20px;
+  }
+  .hw-blurb { font-size: 15.5px; margin: 0 0 12px; }
+  .hw-blurb strong { color: var(--ember-deep); }
+
+  .hw-card {
+    background: #fff; border: 1px solid var(--line); border-radius: 14px;
+    padding: 24px 24px 26px; margin-top: 18px;
+  }
+  .hw-eyebrow {
+    font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--char-soft); font-weight: 700; margin: 0 0 14px;
+  }
+  .hw-field { margin-bottom: 18px; }
+  .hw-label { display: block; font-weight: 600; font-size: 14.5px; margin-bottom: 7px; }
+  .hw-label .req { color: var(--ember); margin-left: 3px; }
+  .hw-hint { font-weight: 400; color: var(--char-soft); font-size: 13px; }
+  .hw-input, .hw-textarea {
+    width: 100%; border: 1.5px solid var(--line); border-radius: 9px;
+    padding: 11px 13px; font-size: 15px; font-family: inherit;
+    color: var(--char); background: var(--paper);
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .hw-input:focus, .hw-textarea:focus {
+    outline: none; border-color: var(--ember); background: #fff;
+  }
+  .hw-textarea { resize: vertical; min-height: 64px; }
+
+  .hw-proteins { display: flex; gap: 10px; }
+  .hw-protein {
+    flex: 1; border: 1.5px solid var(--line); border-radius: 10px;
+    padding: 14px 8px; text-align: center; cursor: pointer;
+    background: var(--paper); transition: all 0.15s; user-select: none;
+  }
+  .hw-protein:hover { border-color: var(--ember); }
+  .hw-protein.sel {
+    border-color: var(--ember); background: var(--ember); color: #fff;
+    box-shadow: 0 3px 12px rgba(196,69,31,0.3);
+  }
+  .hw-protein .emo { font-size: 24px; display: block; margin-bottom: 5px; }
+  .hw-protein .nm { font-weight: 700; font-size: 14px; }
+  .hw-protein .tag { font-size: 11px; opacity: 0.7; display: block; }
+
+  .hw-submit {
+    width: 100%; background: var(--char); color: var(--paper); border: none;
+    border-radius: 10px; padding: 15px; font-size: 16px; font-weight: 700;
+    font-family: inherit; cursor: pointer; margin-top: 6px; letter-spacing: 0.02em;
+    transition: background 0.15s, transform 0.05s;
+  }
+  .hw-submit:hover { background: var(--ember-deep); }
+  .hw-submit:active { transform: translateY(1px); }
+  .hw-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  .hw-err { color: var(--ember-deep); font-size: 13px; margin-top: 8px; font-weight: 600; }
+
+  .hw-panel-head {
+    display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px;
+  }
+  .hw-panel-head h3 { font-family: Georgia, serif; font-size: 19px; margin: 0; font-weight: 700; }
+  .hw-count { font-size: 13px; color: var(--char-soft); font-weight: 600; }
+  .hw-insp-note { font-size: 13.5px; color: var(--char-soft); margin: 0 0 14px; font-style: italic; }
+  .hw-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .hw-chip {
+    font-size: 13px; padding: 6px 12px; border-radius: 999px;
+    border: 1.5px solid var(--line); background: var(--paper); font-weight: 600;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .hw-chip.covered {
+    border-color: var(--olive); background: rgba(92,107,60,0.12); color: var(--olive-deep);
+  }
+  .hw-chip.covered .dot { color: var(--olive); }
+  .hw-chip .dot { font-size: 10px; }
+
+  .hw-feed { list-style: none; padding: 0; margin: 14px 0 0; }
+  .hw-feed li {
+    padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 14.5px;
+    display: flex; gap: 10px; align-items: flex-start;
+  }
+  .hw-feed li:last-child { border-bottom: none; }
+  .hw-feed .ico { flex-shrink: 0; }
+  .hw-feed .empty { color: var(--char-soft); font-style: italic; padding: 8px 0; }
+  .hw-feed .feed-name { font-weight: 700; }
+  .hw-feed .feed-prot {
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--ember-deep); background: rgba(196,69,31,0.1);
+    padding: 1px 7px; border-radius: 999px; margin-left: 2px;
+  }
+  .hw-feed .feed-salad { display: block; margin-top: 3px; color: var(--char); }
+
+  .hw-thanks { text-align: center; padding: 36px 24px; }
+  .hw-thanks .big { font-size: 44px; margin-bottom: 8px; }
+  .hw-thanks h2 { font-family: Georgia, serif; font-size: 26px; margin: 0 0 8px; }
+  .hw-thanks p { color: var(--char-soft); margin: 0 0 18px; }
+  .hw-link {
+    background: none; border: none; color: var(--ember-deep); font-weight: 700;
+    cursor: pointer; font-size: 14px; font-family: inherit; text-decoration: underline;
+  }
+  .hw-loading { text-align: center; color: var(--char-soft); padding: 20px; font-style: italic; }
+  .hw-config-warn {
+    background: #fff4e8; border: 1.5px solid var(--ember); border-radius: 12px;
+    padding: 18px 20px; margin-top: 18px; font-size: 14px; color: var(--ember-deep);
+  }
+  .hw-config-warn code { background: rgba(0,0,0,0.06); padding: 1px 5px; border-radius: 4px; }
+</style>
+
+<!-- Supabase client library, loaded from their official CDN -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* ============================================================================
+   STEP 1 — PASTE YOUR TWO SUPABASE VALUES HERE
+   ----------------------------------------------------------------------------
+   Replace the two strings below with the values from your Supabase project
+   (Settings -> API). Keep the quotes. Don't touch anything else.
+   ========================================================================== */
+const SUPABASE_URL = "https://ykqzfkylqxbkskurkmgt.supabase.co/rest/v1/";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlrcXpma3lscXhia3NrdXJrbWd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1OTE4NzQsImV4cCI6MjA5ODE2Nzg3NH0.xry8oOv9YF5dfGySJy-Yim-jsrfjYy_0qTbP3PbjAaU";
+/* ========================================================================== */
+
+(function () {
+  const root = document.getElementById('app');
+
+  const INSPIRATION = [
+    'Mixed Leaf','Lettuce','Red Cabbage','Mixed Pepper','Carrot','Cucumber',
+    'Tomato','Red Onion','Spring Onion','Fresh Chilli','Jalapenos','Olives',
+    'Sweetcorn','Garden Peas','Chickpeas','Feta Cheese'
+  ];
+
+  const PROTEINS = [
+    { id: 'steak',    emo: '🥩', nm: 'Steak',    tag: '' },
+    { id: 'chicken',  emo: '🍗', nm: 'Chicken',  tag: '' },
+    { id: 'halloumi', emo: '🧀', nm: 'Halloumi', tag: 'veggie' }
+  ];
+
+  const PROTEIN_EMO = { steak: '🥩', chicken: '🍗', halloumi: '🧀' };
+  const PROTEIN_NM  = { steak: 'Steak', chicken: 'Chicken', halloumi: 'Halloumi' };
+
+  // distinctive keyword(s) per ingredient — avoids "Mixed" bleeding across items
+  const MATCH = {
+    'Mixed Leaf':   ['mixed leaf','leaves','salad leaf','baby leaf'],
+    'Lettuce':      ['lettuce','romaine','cos','iceberg','gem'],
+    'Red Cabbage':  ['red cabbage','cabbage','slaw'],
+    'Mixed Pepper': ['pepper','peppers','capsicum','bell pepper'],
+    'Carrot':       ['carrot'],
+    'Cucumber':     ['cucumber','cuke'],
+    'Tomato':       ['tomato','tomatoes','toms','cherry tom'],
+    'Red Onion':    ['red onion'],
+    'Spring Onion': ['spring onion','scallion'],
+    'Fresh Chilli': ['chilli','chili','chillies'],
+    'Jalapenos':    ['jalapeno','jalapeño','jalapenos'],
+    'Olives':       ['olive','olives'],
+    'Sweetcorn':    ['sweetcorn','sweet corn','corn'],
+    'Garden Peas':  ['pea','peas','garden pea'],
+    'Chickpeas':    ['chickpea','chick pea','garbanzo'],
+    'Feta Cheese':  ['feta']
+  };
+
+  const configured =
+    SUPABASE_URL.indexOf('PASTE_') === -1 &&
+    SUPABASE_ANON_KEY.indexOf('PASTE_') === -1 &&
+    SUPABASE_URL.indexOf('http') === 0;
+
+  let supa = null;
+  if (configured && window.supabase) {
+    supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
+
+  let entries = [];
+  let loading = true;
+  let submitting = false;
+  let view = 'form'; // form | thanks
+  const form = { name: '', protein: '', dietary: '', salad: '', snacks: '' };
+  let errors = {};
+
+  async function fetchEntries() {
+    if (!supa) return null;
+    try {
+      const { data, error } = await supa
+        .from('rsvps')
+        .select('*')
+        .order('created_at', { ascending: true });
+      if (error) { console.error(error); return null; }
+      return data || [];
+    } catch (e) { console.error(e); return null; }
+  }
+
+  async function loadEntries() {
+    const out = await fetchEntries();
+    if (out) entries = out;
+    loading = false;
+    render();
+  }
+
+  // Poll every 5s so the panels reflect new submissions without a manual reload.
+  function startPolling() {
+    setInterval(async () => {
+      const out = await fetchEntries();
+      if (!out) return;
+      const changed = out.length !== entries.length ||
+        out.some((e, i) => !entries[i] || entries[i].id !== e.id);
+      if (changed) { entries = out; renderPanels(); }
+    }, 5000);
+  }
+
+  function coveredSet() {
+    const blob = ' ' + entries.map(e => (e.salad || '') + ' ' + (e.snacks || '')).join('  ').toLowerCase() + ' ';
+    const set = {};
+    INSPIRATION.forEach(item => {
+      const terms = MATCH[item] || [item.toLowerCase()];
+      let hit = terms.some(t => blob.includes(t));
+      if (item === 'Garden Peas' && hit) {
+        const dechick = blob.replace(/chick ?peas?/g, ' ');
+        hit = MATCH['Garden Peas'].some(t => dechick.includes(t));
+      }
+      if (hit) set[item] = true;
+    });
+    return set;
+  }
+
+  function esc(s) {
+    return String(s || '').replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
+  }
+
+  async function submit() {
+    errors = {};
+    if (!form.name.trim()) errors.name = 1;
+    if (!form.protein) errors.protein = 1;
+    if (!form.dietary.trim()) errors.dietary = 1;
+    if (!form.salad.trim()) errors.salad = 1;
+    if (Object.keys(errors).length) { render(); return; }
+
+    submitting = true; render();
+    const row = {
+      name: form.name.trim(),
+      protein: form.protein,
+      dietary: form.dietary.trim(),
+      salad: form.salad.trim(),
+      snacks: form.snacks.trim()
+    };
+    try {
+      const { data, error } = await supa.from('rsvps').insert(row).select();
+      if (error) { console.error(error); submitting = false; errors.save = 1; render(); return; }
+      if (data && data[0]) entries.push(data[0]);
+    } catch (e) {
+      console.error(e); submitting = false; errors.save = 1; render(); return;
+    }
+    submitting = false;
+    view = 'thanks';
+    render();
+  }
+
+  function resetForm() {
+    form.name = ''; form.protein = ''; form.dietary = ''; form.salad = ''; form.snacks = '';
+    errors = {}; view = 'form'; render();
+  }
+
+  function bind() {
+    const map = { hw_name:'name', hw_dietary:'dietary', hw_salad:'salad', hw_snacks:'snacks' };
+    Object.keys(map).forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', e => { form[map[id]] = e.target.value; });
+    });
+    root.querySelectorAll('[data-protein]').forEach(el => {
+      el.addEventListener('click', () => { form.protein = el.getAttribute('data-protein'); render(); });
+    });
+    const sb = document.getElementById('hw_submit');
+    if (sb) sb.addEventListener('click', submit);
+    const rl = document.getElementById('hw_reset');
+    if (rl) rl.addEventListener('click', resetForm);
+  }
+
+  function panelInner() {
+    const covered = coveredSet();
+    const coveredCount = Object.keys(covered).length;
+
+    const inspChips = INSPIRATION.map(item => {
+      const c = covered[item];
+      return '<span class="hw-chip ' + (c ? 'covered' : '') + '">' +
+        (c ? '<span class="dot">●</span>' : '') + esc(item) + '</span>';
+    }).join('');
+
+    const feedItems = entries.length
+      ? entries.slice().reverse().map(e => {
+          const bits = [];
+          if (e.salad) bits.push(esc(e.salad));
+          if (e.snacks) bits.push('<span style="color:var(--char-soft)">+ ' + esc(e.snacks) + '</span>');
+          const pe = PROTEIN_EMO[e.protein] || '🍽️';
+          const pn = PROTEIN_NM[e.protein] || '';
+          return '<li>' +
+            '<span class="ico">' + pe + '</span>' +
+            '<span><span class="feed-name">' + esc(e.name) + '</span> ' +
+            '<span class="feed-prot">' + pn + '</span>' +
+            '<span class="feed-salad">' + bits.join(' &nbsp;·&nbsp; ') + '</span></span>' +
+          '</li>';
+        }).join('')
+      : '<li class="empty">Nothing claimed yet — be the first.</li>';
+
+    return (
+      '<div class="hw-panel-head">' +
+        '<h3>Still needed</h3>' +
+        '<span class="hw-count">' + coveredCount + '/' + INSPIRATION.length + ' covered</span>' +
+      '</div>' +
+      '<p class="hw-insp-note">Inspiration only — green = someone\u2019s already bringing it. Aim for the gaps so we don\u2019t end up with five tubs of feta.</p>' +
+      '<div class="hw-chips">' + inspChips + '</div>' +
+      '<div class="hw-panel-head" style="margin-top:22px;margin-bottom:4px;">' +
+        '<h3 style="font-size:16px;">Already claimed</h3>' +
+        '<span class="hw-count">' + entries.length + ' in</span>' +
+      '</div>' +
+      '<ul class="hw-feed">' + feedItems + '</ul>'
+    );
+  }
+
+  function renderPanels() {
+    const card = document.getElementById('hw_panel');
+    if (card) card.innerHTML = panelInner();
+  }
+
+  function render() {
+    const proteinBtns = PROTEINS.map(p =>
+      '<div class="hw-protein ' + (form.protein === p.id ? 'sel' : '') + '" data-protein="' + p.id + '">' +
+        '<span class="emo">' + p.emo + '</span>' +
+        '<span class="nm">' + p.nm + '</span>' +
+        (p.tag ? '<span class="tag">' + p.tag + '</span>' : '') +
+      '</div>'
+    ).join('');
+
+    const hero =
+      '<div class="hw-hero">' +
+        '<p class="hw-flame">🔥 Housewarming</p>' +
+        '<h1 class="hw-title">The <em>Pitta</em> Plan</h1>' +
+        '<p class="hw-sub">Urban-Pitta-inspired</p>' +
+        '<p class="hw-blurb">The plan: fresh pittas made by <strong>Annabel</strong>, and I\u2019ll be firing up the grill for <strong>steak, chicken or halloumi</strong>. I provide the vessel (pitta) and the protein — in return, you bring a <strong>salad / filling</strong> to go in the sandwich: feta, lettuce, rocket, tomatoes, garden peas, whatever takes you.</p>' +
+        '<p class="hw-blurb">Snacks, picky bits and dips welcome if you fancy. I\u2019ll make a complimentary lemonade for everyone — otherwise it\u2019s <strong>BYOB</strong>.</p>' +
+        '<p class="hw-blurb" style="font-size:14px;color:var(--char-soft)"><strong>One form each, please</strong> — fill it in for yourself so I get the grill count right.</p>' +
+      '</div>';
+
+    if (!configured) {
+      root.innerHTML = hero +
+        '<div class="hw-config-warn">' +
+          '<strong>Setup not finished.</strong> This page needs your two Supabase values pasted into the code ' +
+          '(the <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> lines near the top of the file). ' +
+          'Once they\u2019re in and you\u2019ve re-published, this message disappears and the form goes live.' +
+        '</div>';
+      return;
+    }
+
+    const inspPanel = '<div class="hw-card" id="hw_panel">' + panelInner() + '</div>';
+
+    if (view === 'thanks') {
+      root.innerHTML = hero +
+        '<div class="hw-card hw-thanks">' +
+          '<div class="big">🔥</div>' +
+          '<h2>You\u2019re on the list</h2>' +
+          '<p>Grill\u2019s counting you in. Check below to see what\u2019s still needed.</p>' +
+          '<button class="hw-link" id="hw_reset">+ Add another guest</button>' +
+        '</div>' + inspPanel;
+      bind();
+      return;
+    }
+
+    const formCard =
+      '<div class="hw-card">' +
+        '<p class="hw-eyebrow">Your RSVP</p>' +
+        '<div class="hw-field">' +
+          '<label class="hw-label">Name<span class="req">*</span></label>' +
+          '<input class="hw-input" id="hw_name" placeholder="Who are you?" value="' + esc(form.name) + '">' +
+          (errors.name ? '<div class="hw-err">Pop your name in.</div>' : '') +
+        '</div>' +
+        '<div class="hw-field">' +
+          '<label class="hw-label">Your protein<span class="req">*</span> <span class="hw-hint">— one each</span></label>' +
+          '<div class="hw-proteins">' + proteinBtns + '</div>' +
+          (errors.protein ? '<div class="hw-err">Pick one for the grill.</div>' : '') +
+        '</div>' +
+        '<div class="hw-field">' +
+          '<label class="hw-label">Dietary requirements / allergies<span class="req">*</span></label>' +
+          '<input class="hw-input" id="hw_dietary" placeholder="None? Just write \u2018none\u2019" value="' + esc(form.dietary) + '">' +
+          (errors.dietary ? '<div class="hw-err">Tell me \u2018none\u2019 if there\u2019s nothing.</div>' : '') +
+        '</div>' +
+        '<div class="hw-field">' +
+          '<label class="hw-label">Salad / toppings you\u2019ll bring<span class="req">*</span> <span class="hw-hint">— check the list before picking</span></label>' +
+          '<textarea class="hw-textarea" id="hw_salad" placeholder="e.g. rocket + cherry tomatoes">' + esc(form.salad) + '</textarea>' +
+          (errors.salad ? '<div class="hw-err">What\u2019s going in the sandwich?</div>' : '') +
+        '</div>' +
+        '<div class="hw-field">' +
+          '<label class="hw-label">Snacks, picky bits &amp; dips <span class="hw-hint">— optional, if you fancy</span></label>' +
+          '<textarea class="hw-textarea" id="hw_snacks" placeholder="Crisps, hummus, olives… whatever you like">' + esc(form.snacks) + '</textarea>' +
+        '</div>' +
+        (errors.save ? '<div class="hw-err">Couldn\u2019t save — check your connection and try again.</div>' : '') +
+        '<button class="hw-submit" id="hw_submit"' + (submitting ? ' disabled' : '') + '>' +
+          (submitting ? 'Saving…' : 'Count me in 🔥') +
+        '</button>' +
+      '</div>';
+
+    if (loading) {
+      root.innerHTML = hero + '<div class="hw-card"><div class="hw-loading">Lighting the grill…</div></div>';
+      return;
+    }
+
+    root.innerHTML = hero + formCard + inspPanel;
+    bind();
+  }
+
+  render();
+  if (configured) { loadEntries(); startPolling(); }
+})();
+</script>
+</body>
+</html>
